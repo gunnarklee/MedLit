@@ -28,9 +28,8 @@ for dir_, _, files in os.walk("./PMC_Files"):
 stop = time.time()
 duration = stop - start
 
-print "We have %s total records" %(len(fileSet))
-print "This process took %s seconds" %(duration)
-
+print "We have %s total records" % (len(fileSet))
+print "This process took %s seconds" % (duration)
 
 
 def parseXML(data):
@@ -46,7 +45,7 @@ def parseXML(data):
 
     #Get journal title
     jtitle = jmeta.getElementsByTagName("journal-title")[0].firstChild.data
-    
+
     #Get Pubmed ID ("pmid"), article title, contributors
     '''Getting the pubmed ID is a little cumbersome. Its not always in the same
     location under article-id so we cant just pull from a direct node. While there
@@ -60,7 +59,7 @@ def parseXML(data):
         if len(id_val) == 8:
             pubmedID = id_val
             break
-    
+
     #Get Article Title
     '''Theres a problem here - if the journal used italics or bold and its tagged that
     way then it creates a whole separate element, breaking up the normal title flow.
@@ -69,47 +68,47 @@ def parseXML(data):
     still something I would like to have fixed.  This probably means were biasing
     against certain journals.'''
     atitle = ameta.getElementsByTagName("article-title")[0].firstChild.data
-    
+
     #get the PMC Release year - change to 0 for nihms-submitted and 1 for ppub
     '''Note: given the issue with Pubmed IDs, this may also provide years from other tags.
     I havent researched it to find out.'''
     pubdate = ameta.getElementsByTagName("pub-date")[2]
     year = pubdate.getElementsByTagName("year")[0].firstChild.data
-    
+
     #get contributors
     c_group = ameta.getElementsByTagName("contrib-group")[0]
     contributor = c_group.getElementsByTagName("contrib")
-    
+
     #Open the output file
-    outputFile = open("output.csv",'a')
+    outputFile = open("output.csv", 'a')
     wr = csv.writer(outputFile)
-    
+
     #Cycle through to get all contributors
     for person in contributor:
-        
+
         #If element contains names, use those
         try:
             lastname = person.getElementsByTagName("surname")[0].firstChild.data
             firstname = person.getElementsByTagName("given-names")[0].firstChild.data
-        
-        #Businesses use 'collab' instead of names
-        except IndexError:   
-            firstname = person.getElementsByTagName("collab")[0].firstChild.data
-            lastname=""
 
-        fullname = firstname+" "+lastname      
+        #Businesses use 'collab' instead of names
+        except IndexError:
+            firstname = person.getElementsByTagName("collab")[0].firstChild.data
+            lastname = ""
+
+        fullname = firstname+" "+lastname
 
         #Output
-        csvline = [fullname,atitle,pubmedID,jtitle,year]
+        csvline = [fullname, atitle, pubmedID, jtitle, year]
         wr.writerow(csvline)
-    
+
     #Close output file when for loop completes
     outputFile.close()
 
 '''Takes a LONG time'''
 '''HEADS UP - I have an empty "except" argument so we can get through
 the entire list in one attempt without stalling every few hours for a
-one-off error.  This means that once you start this there is no stopping 
+one-off error.  This means that once you start this there is no stopping
 it unless you hard stop the iPython Notebook server (Control-C twice in terminal).
 Trying to "Stop Kernel" from within iPython will simply raise the
 Unknown Error condition and the script will continue on its merry way.'''
@@ -120,12 +119,12 @@ successes = 0
 failures = 0
 
 for n in fileSet:
-    
+
     #Using 'try' helps with debugging issues
     try:
         parseXML(n)
         successes += 1
-    
+
     #The following catch errors, the most prevalent of which are AttributeErrors
     except IndexError:
         #print "IndexError in", n  #Good for debugging issues
@@ -136,17 +135,17 @@ for n in fileSet:
     except:
         print "Unknown Error in", n
         failures += 1
-         
+
     #Just helps monitor what's happening
-    if successes%5000 == 0:
+    if successes % 5000 == 0:
         tempstop = time.time()
         tempduration = (tempstop - start)/60
-        print "%s successes, %s failures :: %s minutes" %(successes,failures,tempduration)
+        print "%s successes, %s failures :: %s minutes" % (successes, failures, tempduration)
 
 stop = time.time()
 duration = stop - start
 
-print "Processing completed in %s seconds"  %(duration)
+print "Processing completed in %s seconds" % (duration)
 print "output.csv file was generated in the same directory as this python script."
 print ""
-print "%s successes. %s failures." %(successes, failures)
+print "%s successes. %s failures." % (successes, failures)
