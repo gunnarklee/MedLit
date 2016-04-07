@@ -3,6 +3,9 @@ import csv
 import os
 import time
 import sys
+import string
+
+
 
 '''The following will cause the iPython notebook to stop printing within
 the document!!  You will still see it in the terminal.  Was the easiest
@@ -31,6 +34,9 @@ duration = stop - start
 print "We have %s total records" % (len(fileSet))
 print "This process took %s seconds" % (duration)
 
+def removePunctuation(s):
+    exclude = set(string.punctuation)
+    return ''.join(ch for ch in s if ch not in exclude)
 
 def parseXML(data):
     '''Takes XML input and extracts several relevant fields. Note that right now
@@ -97,6 +103,12 @@ def parseXML(data):
             lastname = ""
 
         fullname = firstname+" "+lastname
+
+
+        fullname = removePunctuation(fullname)
+        atitle = removePunctuation(atitle)
+        pubmedID = removePunctuation(pubmedID)
+        jtitle = removePunctuation(jtitle)
 
         #Output
         csvline = [fullname, atitle, pubmedID, jtitle, year]
