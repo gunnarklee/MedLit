@@ -1,0 +1,4 @@
+name: medlit
+markdown: redcarpet
+pygments: true
+baseurl: /medlit
